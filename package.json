@@ -1,0 +1,24 @@
+{
+  "name": "@clysema/http",
+  "version": "0.0.1",
+  "description": "[![npm (scoped)](https://img.shields.io/npm/v/@clysema/http.svg)](https://www.npmjs.com/package/@clysema/http) [![npm bundle size (minified)](https://img.shields.io/bundlephobia/min/@clysema/http.svg)](https://www.npmjs.com/package/@clysema/http)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Víctor Navarro <v.navarro@clysema.com> (https://www.clysema.com)",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.4",
+    "joi": "^14.3.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ingeniadevteam/clysema-http.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ingeniadevteam/clysema-http/issues"
+  },
+  "homepage": "https://github.com/ingeniadevteam/clysema-http#readme"
+}
