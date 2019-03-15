@@ -40,6 +40,18 @@ app.vars = { date: new Date() };
 console.log(app.controls);
 ```
 
+## Test using cURL
+
+GET
+```bash
+curl http://localhost:4000/vars
+```
+
+POST
+```bash
+curl --header "Content-Type: application/json" --request POST --data '{"a":"1","b":"2"}' http://localhost:4000/controls
+```
+
 ## Security
 
 Only allow local requests (recommended):
