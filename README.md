@@ -21,16 +21,16 @@ config/http.json
   "host": "localhost",
   "port": 4000,
   "rest": true,
-  "get": "vars",
-  "post": "controls"
+  "get": ["vars"],
+  "post": ["controls"]
 }
 ```
 
 If `root` property exis, will serve static content placed in `/home/pi/www` on http://localhost:4000.
 
-If `rest` is `true` and `get` is defined, a GET in http://localhost:4000/vars endpoint will return `app.vars` in this example.
+If `rest` is `true` and `get` list is defined, a GET in http://localhost:4000/vars endpoint will return `app.vars` in this example.
 
-If `rest` is `true` and `post` is defined, a POST in  http://localhost:4000/controls  will write `app.controls` (in this example) with the data supplied.
+If `rest` is `true` and `post` list is defined, a POST in  http://localhost:4000/controls  will write `app.controls` (in this example) with the data supplied.
 
 Anywhere in the app code:
 ```js

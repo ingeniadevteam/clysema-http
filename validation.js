@@ -7,8 +7,8 @@ const httpSchema = joi.object({
   host: joi.string().default('localhost'),
   port: joi.number().default(4000),
   rest: joi.boolean().default(true),
-  get: joi.string().default('vars'),
-  post: joi.string().default('controls')
+  get: joi.array().items(joi.string()).default(['vars', 'controls']),
+  post: joi.array().items(joi.string()).default(['controls'])
 }).unknown();
 
 

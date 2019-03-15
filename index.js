@@ -35,17 +35,21 @@ module.exports = async (app) => {
   // setup vars REST enponit
   if (app.config.http.rest) {
     if (app.config.http.get) {
-      Express.get(`/${app.config.http.get}`, (req, res) => {
-        res.json(app[app.config.http.get]);
-      });
+      for (let get of app.config.http.get) {
+        Express.get(`/${get}`, (req, res) => {
+          res.json(app[get]);
+        });
+      }
     }
     if (app.config.http.post) {
       Express.use(bodyParser.json()); // support json encoded bodies
 
-      Express.post(`/${app.config.http.post}`, (req, res) => {
-        app[`${app.config.http.post}`] = req.body;
-        res.end();
-      });
+      for (let post of app.config.http.post) {
+        Express.post(`/${post}`, (req, res) => {
+          app[`${post}`] = req.body;
+          res.end();
+        });
+      }
     }
   }
 
@@ -60,11 +64,11 @@ module.exports = async (app) => {
         if (app.config.http.rest) {
           if (app.config.http.get) {
             app.modules.logger.log("info",
-              `GET endpoint http://${add.address}:${add.port}/${app.config.http.get}`);
+              `GET endpoints http://${add.address}:${add.port}/${app.config.http.get}`);
           }
           if (app.config.http.post) {
             app.modules.logger.log("info",
-              `POST endpoint http://${add.address}:${add.port}/${app.config.http.post}`);
+              `POST endpoints http://${add.address}:${add.port}/${app.config.http.post}`);
           }
         }
   });
