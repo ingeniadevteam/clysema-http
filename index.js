@@ -2,6 +2,7 @@
 
 const  fs = require('fs');
 const express = require('express');
+const bodyParser = require('body-parser');
 
 const validation =  require("./validation");
 
@@ -17,32 +18,54 @@ module.exports = async (app) => {
   }
 
   // create an express app for the http server
-  const httpServer = express();
-  // Define the port to run on
-  httpServer.set('port', app.config.http.port);
-  // setup static content
-  httpServer.use(express.static(app.config.http.root));
+  const Express = express();
+
+  if (app.config.http.root) {
+    // setup static content
+    fs.exists(app.config.http.root, (exists) => {
+      if (exists) {
+        Express.use(express.static(app.config.http.root));
+      } else {
+        app.modules.logger.log("error",
+          `http root ${app.config.http.root} does not exists`);
+      }
+    });
+  }
 
   // setup vars REST enponit
   if (app.config.http.rest) {
-    httpServer.get(`/${app.config.http.app_vars}`, (req, res) => {
-      res.json(app[app.config.http.app_vars]);
-    });
-  }
-  // Listen for requests
-  httpServer.listen(app.config.http.port, () => {
-    app.modules.logger.log("info",
-      `HTTP server http://localhost:${app.config.http.port}`);
-    if (app.config.http.rest) {
-      app.modules.logger.log("info",
-        `REST endpoint http://localhost:${app.config.http.port}/${app.config.http.app_vars} `);
+    if (app.config.http.get) {
+      Express.get(`/${app.config.http.get}`, (req, res) => {
+        res.json(app[app.config.http.get]);
+      });
     }
-  });
+    if (app.config.http.post) {
+      Express.use(bodyParser.json()); // support json encoded bodies
 
+      Express.post(`/${app.config.http.post}`, (req, res) => {
+        app[`${app.config.http.post}`] = req.body;
+        res.end();
+      });
+    }
+  }
 
-  fs.exists(app.config.http.root, (exists) => {
-    if (!exists)
-      app.modules.logger.log("error",
-      `please write a ${app.config.http.root}/www/index.html file`);
+  // Listen for requests
+  const server = Express.listen(app.config.http.port,
+      app.config.http.host, () => {
+        const add = server.address();
+        if (app.config.http.root) {
+          app.modules.logger.log("info",
+            `HTTP server http://${add.address}:${add.port}`);
+        }
+        if (app.config.http.rest) {
+          if (app.config.http.get) {
+            app.modules.logger.log("info",
+              `GET endpoint http://${add.address}:${add.port}/${app.config.http.get}`);
+          }
+          if (app.config.http.post) {
+            app.modules.logger.log("info",
+              `POST endpoint http://${add.address}:${add.port}/${app.config.http.post}`);
+          }
+        }
   });
 }

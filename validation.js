@@ -3,22 +3,20 @@
 const joi = require('joi');
 
 const httpSchema = joi.object({
-  root: joi.string().required(),
+  root: joi.string().optional(),
+  host: joi.string().default('localhost'),
   port: joi.number().default(4000),
   rest: joi.boolean().default(true),
-  app_vars: joi.string().default('vars')
+  get: joi.string().default('vars'),
+  post: joi.string().default('controls')
 }).unknown();
 
 
 module.exports = async function (app, obj) {
-  let extObj;
-  if (!Object.keys(obj).length || !obj.hasOwnProperty('root')) {
-    extObj = Object.assign({
-      root: `${app.path}/www`
-    }, obj);
-  }
+  if (!obj) obj = {};
+
   // validate the config object
-  const validation = joi.validate(extObj, httpSchema);
+  const validation = joi.validate(obj, httpSchema);
   if (validation.error) {
     const errors = [];
     validation.error.details.forEach( detail => {
