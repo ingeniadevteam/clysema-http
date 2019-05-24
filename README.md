@@ -5,6 +5,7 @@
 
 Serves or HTTP static content and/or a REST GET/POST endpoints.
 Can be used to create a local user interface.
+Basic Auth.
 
 ## Install
 
@@ -70,4 +71,25 @@ config/http.json
 {
   "host": "0.0.0.0"
 }
+```
+
+### Basic Auth
+
+Put the username and password in env variables and the run the controller app.
+
+Example:
+```bash
+USERNAME=test PASSWORD=test npm start
+```
+
+## Test
+
+GET/controls
+```bash
+curl -u test:test http://localhost:4000/controls
+```
+
+PUT/controls
+```bash
+curl -d '{"a":3, "b":3}' -u test:test -H "Content-Type: application/json" -X POST http://localhost:4000/controls
 ```

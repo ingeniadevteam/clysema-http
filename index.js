@@ -3,11 +3,19 @@
 const  fs = require('fs');
 const express = require('express');
 const bodyParser = require('body-parser');
+const basicAuth = require('express-basic-auth');
 
 const validation =  require("./validation");
 
+const getUnauthorizedResponse = (req) => {
+    return req.auth
+        ? ('Credentials ' + req.auth.user + ':' + req.auth.password + ' rejected')
+        : 'No credentials provided'
+    return 'auth failed'
+}
+
 module.exports = async (app) => {
-  let config;
+  let config, users, auth;
   // get a validated config object
   try {
     config = await app.modules.jsonload(`${app.path}/config/http.json`);
@@ -15,6 +23,20 @@ module.exports = async (app) => {
   } catch (e) {
     console.log(e);
     throw e;
+  }
+
+  // check if there is auth env variables
+  if (process.env.USERNAME && process.env.PASSWORD) {
+    users = {};
+    users[`${process.env.USERNAME}`] = process.env.PASSWORD;
+    auth = basicAuth({
+      users,
+      challenge: true,
+      unauthorizedResponse: getUnauthorizedResponse
+    });
+  } else {
+    // no Auth
+    auth = (req, res, next) => next();
   }
 
   // create an express app for the http server
@@ -36,7 +58,7 @@ module.exports = async (app) => {
   if (app.config.http.rest) {
     if (app.config.http.get) {
       for (let get of app.config.http.get) {
-        Express.get(`/${get}`, (req, res) => {
+        Express.get(`/${get}`, auth, (req, res) => {
           res.json(app[get]);
         });
       }
@@ -45,7 +67,7 @@ module.exports = async (app) => {
       Express.use(bodyParser.json()); // support json encoded bodies
 
       for (let post of app.config.http.post) {
-        Express.post(`/${post}`, (req, res) => {
+        Express.post(`/${post}`, auth, (req, res) => {
           app[`${post}`] = req.body;
           res.end();
         });
@@ -72,4 +94,6 @@ module.exports = async (app) => {
           }
         }
   });
+
+  return server;
 }

@@ -1,6 +1,6 @@
 {
   "name": "@clysema/http",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "[![npm (scoped)](https://img.shields.io/npm/v/@clysema/http.svg)](https://www.npmjs.com/package/@clysema/http) [![npm bundle size (minified)](https://img.shields.io/bundlephobia/min/@clysema/http.svg)](https://www.npmjs.com/package/@clysema/http)",
   "main": "index.js",
   "scripts": {
@@ -12,6 +12,7 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
+    "express-basic-auth": "^1.2.0",
     "joi": "^14.3.1"
   },
   "repository": {
