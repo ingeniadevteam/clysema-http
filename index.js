@@ -19,11 +19,14 @@ module.exports = async (app) => {
   // get a validated config object
   try {
     config = await app.modules.jsonload(`${app.path}/config/http.json`);
-    config.http = await validation(app, config);
+    config = await validation(app, config);
   } catch (e) {
     console.log(e);
     throw e;
   }
+
+  // set app.config
+  app.config.http = config;
 
   // check if there is auth env variables
   if (process.env.USERNAME && process.env.PASSWORD) {
