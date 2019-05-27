@@ -19,7 +19,7 @@ module.exports = async (app) => {
   // get a validated config object
   try {
     config = await app.modules.jsonload(`${app.path}/config/http.json`);
-    app.config.http = await validation(app, config);
+    config.http = await validation(app, config);
   } catch (e) {
     console.log(e);
     throw e;
@@ -42,31 +42,35 @@ module.exports = async (app) => {
   // create an express app for the http server
   const Express = express();
 
-  if (app.config.http.root) {
+  if (config.http.root) {
     // setup static content
-    fs.exists(app.config.http.root, (exists) => {
-      if (exists) {
-        Express.use(express.static(app.config.http.root));
-      } else {
-        app.modules.logger.log("error",
-          `http root ${app.config.http.root} does not exists`);
+    const exists = fs.existsSync(config.http.root);
+    if (exists) {
+      try {
+        Express.get(`/`, auth, (req, res, next) => next());
+        Express.use(`/`, express.static(config.http.root));
+      } catch (e) {
+        console.log(e);
       }
-    });
+    } else {
+      app.modules.logger.log("error",
+        `http root ${config.http.root} does not exists`);
+    }
   }
 
   // setup vars REST enponit
-  if (app.config.http.rest) {
-    if (app.config.http.get) {
-      for (let get of app.config.http.get) {
+  if (config.http.rest) {
+    if (config.http.get) {
+      for (let get of config.http.get) {
         Express.get(`/${get}`, auth, (req, res) => {
           res.json(app[get]);
         });
       }
     }
-    if (app.config.http.post) {
+    if (config.http.post) {
       Express.use(bodyParser.json()); // support json encoded bodies
 
-      for (let post of app.config.http.post) {
+      for (let post of config.http.post) {
         Express.post(`/${post}`, auth, (req, res) => {
           app[`${post}`] = req.body;
           res.end();
@@ -76,21 +80,21 @@ module.exports = async (app) => {
   }
 
   // Listen for requests
-  const server = Express.listen(app.config.http.port,
-      app.config.http.host, () => {
+  const server = Express.listen(config.http.port,
+      config.http.host, () => {
         const add = server.address();
-        if (app.config.http.root) {
+        if (config.http.root) {
           app.modules.logger.log("info",
             `HTTP server http://${add.address}:${add.port}`);
         }
-        if (app.config.http.rest) {
-          if (app.config.http.get) {
+        if (config.http.rest) {
+          if (config.http.get) {
             app.modules.logger.log("info",
-              `GET endpoints http://${add.address}:${add.port}/${app.config.http.get}`);
+              `GET endpoints http://${add.address}:${add.port}/${config.http.get}`);
           }
-          if (app.config.http.post) {
+          if (config.http.post) {
             app.modules.logger.log("info",
-              `POST endpoints http://${add.address}:${add.port}/${app.config.http.post}`);
+              `POST endpoints http://${add.address}:${add.port}/${config.http.post}`);
           }
         }
   });
