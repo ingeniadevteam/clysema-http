@@ -26,7 +26,7 @@ module.exports = async (app) => {
   }
 
   // set app.config
-  app.config.http = config;
+  app.config.http = config
 
   // check if there is auth env variables
   if (process.env.USERNAME && process.env.PASSWORD) {
@@ -45,35 +45,35 @@ module.exports = async (app) => {
   // create an express app for the http server
   const Express = express();
 
-  if (config.http.root) {
+  if (config.root) {
     // setup static content
-    const exists = fs.existsSync(config.http.root);
+    const exists = fs.existsSync(config.root);
     if (exists) {
       try {
         Express.get(`/`, auth, (req, res, next) => next());
-        Express.use(`/`, express.static(config.http.root));
+        Express.use(`/`, express.static(config.root));
       } catch (e) {
         console.log(e);
       }
     } else {
       app.modules.logger.log("error",
-        `http root ${config.http.root} does not exists`);
+        `http root ${config.root} does not exists`);
     }
   }
 
   // setup vars REST enponit
-  if (config.http.rest) {
-    if (config.http.get) {
-      for (let get of config.http.get) {
+  if (config.rest) {
+    if (config.get) {
+      for (let get of config.get) {
         Express.get(`/${get}`, auth, (req, res) => {
           res.json(app[get]);
         });
       }
     }
-    if (config.http.post) {
+    if (config.post) {
       Express.use(bodyParser.json()); // support json encoded bodies
 
-      for (let post of config.http.post) {
+      for (let post of config.post) {
         Express.post(`/${post}`, auth, (req, res) => {
           app[`${post}`] = req.body;
           res.end();
@@ -83,21 +83,21 @@ module.exports = async (app) => {
   }
 
   // Listen for requests
-  const server = Express.listen(config.http.port,
-      config.http.host, () => {
+  const server = Express.listen(config.port,
+      config.host, () => {
         const add = server.address();
-        if (config.http.root) {
+        if (config.root) {
           app.modules.logger.log("info",
             `HTTP server http://${add.address}:${add.port}`);
         }
-        if (config.http.rest) {
-          if (config.http.get) {
+        if (config.rest) {
+          if (config.get) {
             app.modules.logger.log("info",
-              `GET endpoints http://${add.address}:${add.port}/${config.http.get}`);
+              `GET endpoints http://${add.address}:${add.port}/${config.get}`);
           }
-          if (config.http.post) {
+          if (config.post) {
             app.modules.logger.log("info",
-              `POST endpoints http://${add.address}:${add.port}/${config.http.post}`);
+              `POST endpoints http://${add.address}:${add.port}/${config.post}`);
           }
         }
   });
